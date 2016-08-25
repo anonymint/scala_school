@@ -19,17 +19,21 @@ h2(#apply). apply methods
 apply methods give you a nice syntactic sugar for when a class or object has one main use.
 
 <pre>
-class Foo {}
-	
-object FooMaker {
-  def apply() = new Foo
-}
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
 </pre>
 
 or
 
 <pre>
-
 scala> class Bar {
      |   def apply() = 0
      | }
@@ -43,7 +47,6 @@ res8: Int = 0
 </pre>
 
 Here our instance object looks like we're calling a method. More on that later!
-
 
 h2(#object). Objects
 
@@ -96,12 +99,11 @@ scala> addOne(1)
 res2: Int = 2
 </pre>
 
-There is Function1 through 22.  Why 22?  It's an arbitrary magic number.  I've never needed a function with more than 22 arguments so it seems to work out.
+There is Function0 through 22.  Why 22?  It's an arbitrary magic number.  I've never needed a function with more than 22 arguments so it seems to work out.
 
-The syntatic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
+The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
 
-Does this mean that everytime you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  methods defined standalone in the repl are Function* instances.
-
+Does this mean that every time you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  Methods defined standalone in the repl are Function* instances.
 
 Classes can also extend Function and those instances can be called with ().
 
@@ -193,10 +195,7 @@ times match {
 
 Notice how we captured the value in the variable 'i'.
 
-The <code>_</code> in the last case statement is a wildcard; it
-ensures that we can handle any statement. Otherwise you will suffer a
-runtime error if you pass in a number that doesn't match. We discuss
-this more later.
+The <code>_</code> in the last case statement is a wildcard; it ensures that we can handle any statement. Otherwise you will suffer a runtime error if you pass in a number that doesn't match. We discuss this more later.
 
 *See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
 
@@ -222,16 +221,18 @@ Remember our calculator from earlier.
 
 Let's classify them according to type.
 
+Here's the painful way first.
+
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" && calc.model == "20B" => "financial"
-  case calc.brand == "hp" && calc.model == "48G" => "scientific"
-  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ if calc.brand == "HP" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "HP" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "HP" && calc.model == "30B" => "business"
   case _ => "unknown"
 }
 </pre>
 
-Wow, that's painful. Thankfully Scala provides some nice tools specifically for this.
+Wow, that's painful.  Thankfully Scala provides some nice tools specifically for this.
 
 h2(#caseclass). Case Classes
 
@@ -241,7 +242,7 @@ case classes are used to conveniently store and match on the contents of a class
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
@@ -249,10 +250,10 @@ hp20b: Calculator = Calculator(hp,20b)
 case classes automatically have equality and nice toString methods based on the constructor arguments.
 
 <pre>
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
-scala> val hp20B = Calculator("hp", "20b")
+scala> val hp20B = Calculator("HP", "20b")
 hp20B: Calculator = Calculator(hp,20b)
 
 scala> hp20b == hp20B
@@ -266,13 +267,13 @@ h6. Case Classes with pattern matching
 case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
 
 <pre>
-val hp20b = Calculator("hp", "20B")
-val hp30b = Calculator("hp", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
-  case Calculator("hp", "20B") => "financial"
-  case Calculator("hp", "48G") => "scientific"
-  case Calculator("hp", "30B") => "business"
+  case Calculator("HP", "20B") => "financial"
+  case Calculator("HP", "48G") => "scientific"
+  case Calculator("HP", "30B") => "business"
   case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>
@@ -303,7 +304,7 @@ Exceptions are available in Scala via a try-catch-finally syntax that uses patte
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
-  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
 } finally {
   remoteCalculatorService.close()
 }
@@ -316,7 +317,7 @@ val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {
   case e: ServerIsDownException => {
-    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
     0
   }
 } finally {

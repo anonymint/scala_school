@@ -57,7 +57,7 @@ scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
-В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумер��тся с 1, а не с 0.
+В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумеруются с 1, а не с 0.
 
 <pre>
 scala> hostPort._1
@@ -112,7 +112,7 @@ h2(#Option). Опция
 
 <code>Опция</code> представляет собой контейнер, который хранит какое-то значение или не хранит ничего совсем.
 
-Основный интерфейс Опции выглядит следующим образом:
+Основной интерфейс Опции выглядит следующим образом:
 
 <code>
 trait Option[T] {
@@ -129,14 +129,14 @@ trait Option[T] {
 <code>Map.get</code> использует <code>Option</code> для возврата собственных значений. Опция говорит вам, что метод может не вернуть того значения, которое мы запросили.
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
 Теперь наши данные отлавливаются с помощью <code>Option</code>. Как мы можем это использовать?
@@ -245,7 +245,7 @@ h2(#partition). partition
 <code>partition</code> разделяет список, в зависимости от результата, который возвращает функция-предикат.
 
 <pre>
-scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition(_ %2 == 0)
+scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition(_ % 2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 </pre>
 
@@ -322,7 +322,7 @@ res0: Int = 55
 
 h2(#flatten). flatten
 
-flatten сжимает вложенн��е структуры.
+flatten сжимает вложенные структуры.
 
 <pre>
 scala> List(List(1, 2), List(3, 4)).flatten
@@ -382,7 +382,7 @@ scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
-теперь выберем каждую запись, у которой телефонный код мен��ше 200.
+теперь выберем каждую запись, у которой телефонный код меньше 200.
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)

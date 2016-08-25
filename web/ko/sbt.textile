@@ -1,43 +1,44 @@
 ---
 prev: advanced-types.textile
 next: coll2.textile
-title: Simple Build Tool
+title: 빌드 도구 SBT(Simple Build Tool)
 layout: post
 ---
 
-This lesson covers SBT! Specific topics include:
-* creating an sbt project
-* basic commands
-* the sbt console
-* continuous command execution
-* customizing your project
-* custom commands
-* quick tour of sbt source (if time)
+이번 강좌에서는 SBT를 다룬다! 아래 주제에 대해 설명할 것이다.
 
-h2. About SBT
+* sbt 프로젝트 만들기
+* 기본 명령어
+* sbt 콘솔
+* 연속적인 명령 실행
+* 프로젝트를 커스텀화하기
+* 커스텀 명령어
+* sbt 소스 간략하게 훑어보기(시간이 허락하면)
 
-SBT is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.
+h2. SBT란
 
-h2. Why SBT?
+SBT는 최신 빌드 도구 중 하나이다. 스칼라로 작성되었고, 스칼라에 사용하기 편한 기능을 많이 제공하기는 하지만, SBT 자체는 범용 빌드 도구이다.
 
-* Sane(ish) dependency management
-** Ivy for dependency management
-** Only-update-on-request model
-* Full Scala language support for creating tasks
-* Continuous command execution
-* Launch REPL in project context
+h2. SBT를 쓰는 이유는?
 
-h2. Getting Started
+* 건전한(?) 의존성 관리
+** 의존성 관리에 Ivy를 사용
+** 요청이 올때만 업데이트(Only-update-on-request) 모델
+* 태스크를 작성할 수 있도록 스칼라 언어 전체를 지원
+* 연속으로 명령 실행
+* 프로젝트 문맥(환경)하에서 REPL 실행 가능
 
-* "Download the jar":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
-* Create an sbt shell script that calls the jar, e.g.
+h2. 시작하기
+
+* jar를 다운로드하라(http://code.google.com/p/simple-build-tool/downloads/list).
+* 아래 예와 같이 다운로드 받은 jar를 호출하는 셀 스크립트를 작성하라. 
 
 <pre>
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 
-* make sure it's executable and in your path
-* run sbt to create your project
+* 앞에서 만든 스크립트가 실행 경로에 포함되어 있는지 확인하라.
+* sbt를 실행해 프로젝트를 시작하라.
 
 <pre>
 [local ~/projects]$ sbt
@@ -49,7 +50,7 @@ Scala version [2.7.7]: 2.8.1
 sbt version [0.7.4]:      
 Getting Scala 2.7.7 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
+  confs: [default]
 	2 artifacts copied, 0 already retrieved (9911kB/221ms)
 Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
 :: retrieving :: org.scala-tools.sbt#boot-app
@@ -65,26 +66,22 @@ Getting Scala 2.8.1 ...
 > 
 </pre>
 
-Note that it's good form to start out with a SNAPSHOT version of your project.
+항상 프로젝트 시작시에는 SNAPSHOT 버전을 가지고 시작하라. 
 
-h2. Project Layout
+h2. 프로젝트 구조
 
-* @project@ - project definition files
-** @project/build/@ _yourproject_ @.scala@ - the main project definition file
-** @project/build.properties@ - project, sbt and scala version definitions
-* @src/main@ - your app code goes here, in a subdirectory indicating the
-code's language (e.g. @src/main/scala@, @src/main/java@)
-* @src/main/resources@ - static files you want added to your jar
-  (e.g. logging config)
-* @src/test@ - like @src/main@, but for tests
-* @lib_managed@ - the jar files your project depends on. Populated by sbt update
-* @target@ - the destination for generated stuff (e.g. generated thrift
-  code, class files, jars)
+* project - 프로젝트 정의 파일들
+** project/build/<yourproject>.scala - 주 프로젝트 정의 파일
+** project/build.properties - 프로젝트, sbt, 스칼라 버전 정의
+* src/main - 앱 코드가 이 디렉터리 아래 들어감. 언어에 따라 main 아래 하위 디렉터리를 만들고 그 안에 코드를 넣자. (예: src/main/scala, src/main/java)
+* src/main/resources - jar에 추가하고픈 정적 파일들(예: 로그 설정 파일 등)
+* src/test - 앱 코드는 src/main에, 테스트 코드는 여기에 넣는다
+* lib_managed - 프로젝트에서 사용하는(의존하는) jar 파일들. sbt update를 하면 여기에 jar들이 다운로드됨.
+* target - 빌드시 만들어지는 것들이 들어가는 곳(예: generated thrift code, class files, jars)
 
-h2. Adding Some Code
+h2. 코드 추가하기
 
-We'll be creating a simple JSON parser for simple tweets.  Add the following code to
-@src/main/scala/com/twitter/sample/SimpleParser.scala@
+간단한 트윗을 처리하는 JSON 파서를 만들자. 다음 코드를 src/main/scala/com/twitter/sample/SimpleParser.scala에 추가하라.
 
 <pre>
 package com.twitter.sample
@@ -108,23 +105,24 @@ class SimpleParser {
 }
 </pre>
 
-This is ugly and buggy, but should compile.
+버그도 많고 보기도 안좋다. 그렇지만 컴파일에는 문제가 없다.
 
-h2. Testing in the Console
+h2. 콘솔에서 테스트하기
 
-SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, e.g.
+SBT는 명령행 스크립트로 사용할 수도 있고, 빌드 콘솔로 사용할 수도 있다. 여기서는 주로 빌드 콘솔 형태로 사용할 것이다. 하지만 대부분의 명령은 SBT에 인자로 넘겨서 명령행에서 독립적으로 호출 가능하다. 아래 예를 보라.
 
 <pre>
 sbt test
 </pre>
-Note that if a command takes arguments, you need to quote the entire
-argument path, e.g.
 
-@sbt 'test-only com.twitter.sample.SampleSpec'@
+명령어에 인자가 필요한 경우 명령어와 명령의에 들어갈 인자 모두를 아래와 같이 따옴표로 둘러싸야 한다.
 
-It's weird that way.
+<pre>
+sbt 'test-only com.twitter.sample.SampleSpec'
+</pre>
+이상하긴 하다.
 
-Anyway. To start working with our code, launch sbt
+어쨌든, 우리 코드를 돌려보기 위해 sbt를 실행하자.
 
 <pre>
 [local ~/projects/sbt-sample]$ sbt
@@ -133,9 +131,7 @@ Anyway. To start working with our code, launch sbt
 > 
 </pre>
 
-SBT allows you to start a Scala REPL with all your project
-dependencies loaded. It compiles your project source before launching
-the console, providing us a quick way to bench test our parser.
+필요하면 SBT에서 프로젝트가 의존하는 모든 모듈을 적재한 상태의 스칼라 REPL을 시작할 수 있다. 콘솔을 시작하기 전에 프로젝트 코드를 컴파일할 것이다.  이 REPL을 사용하면 쉽게 우리가 작성한 파서 내부를 들여다 보면서 테스트 할 수 있다.
 
 <pre>
 > console
@@ -170,7 +166,7 @@ Type :help for more information.
 scala> 
 </pre>
 
-Our code has compiled, and we're provide the typical Scala prompt.  We'll create a new parser, an exemplar tweet, and ensure it "works"
+코드가 컴파일되고, 낯익은 스칼라 프럼프트가 표시된다. 새 파서와 예제 트윗을 만들고 파서가 잘 "동작"하나 보자.
 
 <pre>
 scala> import com.twitter.sample._            
@@ -188,11 +184,11 @@ res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"))
 scala> 
 </pre>
 
-h2. Adding Dependencies
+h2. 의존 관계 추가하기
 
-Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real JSON parser to our project.  To do this we have to go beyond the default SBT project layout and create a project.
+방금 입력한 데이터를 대상으로는 파서가 잘 동작하지만, 테스트를 더 추가해 오류가 나는지 확인하고 싶을 것이다. 먼저 할 일은 specs 테스트 라이브러리와 진짜 JSON 파서를 프로젝트에 추가하는 것이다. 이를 위해서는 기본 SBT 프로젝트 구조를 벗어나 새 프로젝트를 만들어야 한다.
 
-SBT considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala
+SBT는 project/build 아래 있는 스칼라 파일을 프로젝트 정의로 간주한다. 다음을 project/build/SampleProject.scala로 추가하라.
 
 <pre>
 import sbt._
@@ -203,9 +199,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre> 
 
-A project definition is an SBT class.  In our case we extend SBT's DefaultProject.
+프로젝트 정의는 바로 SBT 클래스이다. 위 예에서는 SBT의 DefaultProject를 확장했다.
 
-You declare dependencies by specifying a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
+의존관계를 나타내는 val을 정의하면 의존관계 선언이 된다. SBT는 리플렉션을 사용해 프로젝트 안에 정의된 모든 의존관계 값을 읽고 빌드시 해당 의존관계 트리를 만든다. 여기 쓰인 문법이 낯설지도 모르지만, 실제로는 아래의 메이븐(maven) 의존관계 정의와 같은 것이다.
 
 <pre>
 <dependency>
@@ -221,7 +217,7 @@ You declare dependencies by specifying a val that is a dependency.  SBT uses ref
 </dependency>
 </pre>
 
-Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update
+이제 프로젝트에서 사용할 라이브러리를 가져올 수 있다. 명령행(sbt 콘솔이 아님)에서 sbt update를 실행해 보자.
 
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
@@ -241,12 +237,11 @@ Now we can pull down dependencies for our project.  From the command line (not t
 [success] Build completed successfully.
 </pre>
 
-You'll see that sbt retrieved the specs library.  You'll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar
+sbt가 specs 라이브러리를 가져오는 모습이 보인다. 이제는 lib_managed 디렉터리가 보일 것이다. 그리고, lib_managed/scala_2.8.1/test안에 specs_2.8.0-1.6.5.jar이 있어야 한다.
 
-h2. Adding Tests
+h2. 테스트 추가하기
 
-Now that we have a test library added, put the following code in
-src/test/scala/com/twitter/sample/SimpleParserSpec.scala
+테스트 라이브러리를 추가했으니까, 다음 코드를 src/test/scala/com/twitter/sample/SimpleParserSpec.scala에 넣자.
 
 <pre>
 package com.twitter.sample
@@ -270,7 +265,7 @@ object SimpleParserSpec extends Specification {
 }
 </pre>
 
-In the sbt console, run test
+sbt 콘솔에서 test를 실행하라.
 
 <pre>
 > test
@@ -324,7 +319,9 @@ In the sbt console, run test
 > 
 </pre>
 
-Our test works!  Now we can add more.  One of the nice things SBT provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.
+테스트가 성공했다. 이제 더 많은 테스트를 추가할 수 있다. 
+
+SBT가 제공하는 멋진 기능중 하나는 명령에 트리거를 거는 것이다. 명령 앞에 ~를 붙이면 소스 파일이 변경된 경우 해당 명령을 실행한다. ~test를 실행해서 어떤 일이 벌어지나 보자.
 
 <pre>
 [info] == test ==
@@ -334,7 +331,7 @@ Our test works!  Now we can add more.  One of the nice things SBT provides is a 
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
 
-Now let's add the following test cases
+이제 다음 테스트케이스를 추가하자.
 
 <pre>
     "reject a non-JSON tweet" in {
@@ -365,7 +362,7 @@ Now let's add the following test cases
     }
 </pre>
 
-After we save our file, SBT detects our changes, runs tests, and informs us our parser is lame
+테스트 파일을 저장하고 나면, SBT가 파일이 바뀐걸 알아채고, 테스트를 실행한 다음, 우리 파서가 형편없음을 알려준다.
 
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
@@ -379,7 +376,7 @@ After we save our file, SBT detects our changes, runs tests, and informs us our 
 [info]   + fail on partial content
 </pre>
 
-So let's rework our JSON parser to be real
+이제 우리 JSON 파서를 실제 파서로 바꿔보자.
 
 <pre>
 package com.twitter.sample
@@ -427,7 +424,7 @@ class SimpleParser {
 }
 </pre>
 
-This is a simple Jackson parser.  When we save, SBT recompiles our code and reruns our tests.  Getting better!
+이 파서는 간단한 잭슨(jackson) 파서이다.  저장하고 나면 SBT가 코드를 재 컴파일해서 테스트를 실행할 것이다. 훨씬 좋아졌다!
 
 <pre>
 info] SimpleParser should
@@ -439,8 +436,7 @@ info] SimpleParser should
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
 
-Uh oh.  We need to check for nested objects.  Let's add some ugly
-guards to our token reading loop.
+우~. 내포된 객체를 처리해야 한다. 토큰을 읽는 루프에 보기는 싫지만 가드를 추가하자.
 
 <pre>
   def parse(str: String) = {
@@ -481,13 +477,13 @@ guards to our token reading loop.
   }
 </pre>
 
-And... it works!
+그러면.. 잘 동작한다!
 
-h2. Packaging and Publishing
+h2. 패키징과 배포
 
-At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we'll build on StandardProject, which gives us a big head start.
+이제 package 명령을 실행해 jar 파일을 만들 수 있다. 하지만, 이 jar를 다른 팀과 공유해야 할 수도 있다. 이를 위해 StandardProject에 대해 빌드를 수행한다. 그러면 여러가지로 잇점이 많다.
 
-The first step is include StandardProject as an SBT plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.
+맨 처음 할 일은 StandardProject를 SBT 플러그인으로 포함시키는 일이다. 플러그인은 프로젝트가 아니라 빌드에 대해 의존관계를 추가하는 방법이다. 이 의존관계는 project/plugins/Plugins.scala에 정의된다. 다음을 Plugins.scala 파일에 추가하자.
 
 <pre>
 import sbt._
@@ -498,9 +494,9 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 }
 </pre>
 
-Note that we've specified a maven repository as well as a dependency.  That's because the standard project library is hosted by us, which isn't one of the default repos sbt checks.
+메이븐 저장소와 의존성을 같이 지정했다는 점에 유의하라. 왜냐하면 표준 프로젝트 라이브러리는 우리(=트위터)가 관리하고 있는데, 이 저장소는 sbt의 디폴트 저장소에 포함되어 있지 않기 때문이다.
 
-We'll also update our project definition to extend StandardProject, include an SVN publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following
+이제 프로젝트 정의를 StandardProject를 확장하게 바꾸고, SVN 배포 트레잇도 추가하자. 그리고 배포할 저장소도 지정하자. SampleProject.scala를 다음과 같이 바꾼다.
 
 <pre>
 import sbt._
@@ -514,7 +510,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 }
 </pre>
 
-Now if we run the publish action we'll see the following
+이제 publish 명령을 내리면 결과를 불 수 있다.
 
 <pre>
 [info] == deliver ==
@@ -546,23 +542,23 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-And (after some time), we can go to "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
+그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/에 가 보면 배포한 jar파일을 볼 수 있다.
 
-h2. Adding Tasks
+h2. 작업(task) 추가하기
 
-Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.
+작업은 스칼라 함수이다. 작업을 추가하는 제일 쉬운 방법은 프로젝트 정의에 task 메소드를 사용한 val을 추가하는 것이다.
 
 <pre>
 lazy val print = task {log.info("a test action"); None}
 </pre>
 
-If you want dependencies and a description you can add them like this
+의존성이나 설명이 필요하다면 다음과 같이 추가할 수 있다.
 
 <pre>
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
-If we reload our project and run the print action we'll see the following
+프로젝트를 다시 로드하고 print 명령을 내리면 다음과 같은 결과를 볼 수 있다.
 
 <pre>
 > print
@@ -576,7 +572,7 @@ If we reload our project and run the print action we'll see the following
 > 
 </pre>
 
-So it works.  If you're defining a task in a single project this works just fine.  However if you're defining this in a plugin it's fairly inflexible.  I may want to
+잘 동작한다고 할 수 있다. 특정 프로젝트만을 위한 작업을 만든다면 이정도면 충분하다. 하지만, 플러그인안에 작업을 정의하면 훨씬 유연하게 사용할 수 있다. 다음과 같이 할 수 있을 것이다.
 
 <pre>
 lazy val print = printAction
@@ -584,34 +580,34 @@ def printAction = printTask.dependsOn(compile) describedAs("prints a line after 
 def printTask = task {log.info("a test action"); None}
 </pre>
 
-This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in SBT actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following
+이렇게 하면 사용자가 작업이나 의존성, 설명, 동작 등을 오버라이드할 수 있다. SBT에 내장된 명령들도 대부분 이런  패턴을 따른다. 예를 들어 내장된 package 작업을 다음과 같이 변경하면 타임스탬프를 표시하도록 할 수 있다.
 
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
 
-There are many examples in StandardProject of tweaking SBT defaults and adding custom tasks.
+StandardProject를 보면 SBT 기본 설정을 약간 변경하거나, 새 작업을 추가하는 예를 많이 볼 수 있다.
 
-h2. Quick Reference
+h2. 정리
 
-h3. Common Commands
+h3. 자주 쓰는 명령
 
-* actions - show actions available for this project
-* update - downloads dependencies
-* compile - compiles source
-* test - runs tests
-* package - creates a publishable jar file
-* publish-local - installs the built jar in your local ivy cache
-* publish - pushes your jar to a remote repo (if configured)
+* actions - 이 프로젝트에서 사용 가능한 명령을 보여준다
+* update - 프로젝트가 사용하는 라이브러리를 다운로드한다
+* compile - 소스코드를 컴파일한다
+* test - 테스트를 실행한다
+* package - 배포가능한 jar파일을 만든다
+* publish-local - 만들어진 jar를 로컬 ivy 캐시에 설치한다
+* publish - jar를 원격 저장소에 넣는다(원격 저장소가 설정되어 있어야 한다)
 
-h3. Moar Commands
+h3. 다른 명령들
 
-* test-failed - run any specs that failed
-* test-quick - run any specs that failed and/or had dependencies updated
-* clean-cache - remove all sorts of sbt cached stuff.  Like clean for sbt
-* clean-lib - remove everything in lib_managed
+* test-failed - 실패한 specs 테스트를 재시도한다
+* test-quick - 실패했거나 의존관계가 변경된 specs 테스트를 재시도한다
+* clean-cache - 모든 종류의 캐시된 정보를 지운다. sbt clean과 비슷하다
+* clean-lib - lib_managed의 내용을 지운다
 
-h3. Project Layout
+h3. 프로젝트 구성
 
-TBD
+(향후 정의할 예정)

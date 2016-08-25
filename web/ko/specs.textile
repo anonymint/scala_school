@@ -1,32 +1,32 @@
 ---
 prev: coll2.textile
 next: concurrency.textile
-title: Testing with specs
+title: specs로 테스트 하기
 layout: post
 ---
 
-This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework for Scala.
+이번 강좌에서는 Specs를 사용해 테스트하는 법을 다룬다. Specs는 스칼라용 동작 주도 설계(Behavior-Driven Design, BDD) 프레임워크이다.
 
-* "extends Specification":#example
-** nested examples
-* "Execution Model":#scope
-* "Setup and TearDown":#setup
+* "Specification(명세 클래스) 확장하기":#example
+** 내포
+* "실행 모델":#scope
+* "준비작업과 정리작업-Setup, Teardown":#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* "Matchers":#matchers
+* "매처-Matcher":#matchers
 ** mustEqual
 ** contains
 ** sameSize?
-** Write your own
-* "Mocks":#mocks
-* "Spies":#spies
-* "run in sbt":#sbt
+** 필요한 매처 만들어내기
+* "목업":#mocks
+* "스파이":#spies
+* "sbt에서 실행하기":#sbt
 
 
-h2(#example). extends Specification
+h2(#example). Specifcation(명세 클래스) 확장하기
 
-Let's just jump in.
+코드부터 살펴보자.
 
 <pre>
 import org.specs._
@@ -43,19 +43,19 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-*Arithmetic* is the *System Under Specification*
+*Arithmetic* 은 *명세를 지정할 시스템(System under Specification)* 이다.
 
-*add* is a context.
+*add* 는 컨택스트(context)라 한다.
 
-*add two numbers* and *add three numbers* are examples.
+*add two numbers*와 *add three numbers* 는 예제(example)라 한다.
 
-@mustEqual@ indicates an *expectation*
+@mustEqual@ 은 *예상결과(expectation)* 이다.
 
-@1 mustEqual 1@ is a common placeholder *expectation* before you start writing real tests.  All examples should have at least one expectation.
+@1 mustEqual 1@ 은 "예상결과"를 담을 수 있는 틀로 활용할 수 있다. 예제는 반드시 하나 이상의 예상결과를 포함해야 한다.
 
-h3. Duplication
+h3. 중복
 
-Notice how two tests both have @add@ in their name?  We can get rid of that by *nesting* expectations.
+두 테스트의 이름에 @add@ 가 같이 포함되어 있는게 보이는가? 이런 중복은 예상결과를 *내포* 시킴으로써 없앨 수 있다.
 
 <pre>
 import org.specs._
@@ -74,7 +74,7 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-h2(#scope). Execution Model
+h2(#scope). 실행 모델
 
 <pre>
 object ExecSpec extends Specification {
@@ -91,7 +91,7 @@ object ExecSpec extends Specification {
 }
 </pre>
 
-h2(#setup). Setup, Teardown
+h2(#setup). Setup(준비작업)과 Teardown(정리작업)
 
 h3. doBefore & doAfter
 
@@ -104,11 +104,11 @@ h3. doBefore & doAfter
 }
 </pre>
 
-*NOTE* @doBefore@/@doAfter@ are only run on leaf examples.
+*NOTE* @doBefore@ / @doAfter@ 는 말단 예제에 대해에서만 실행된다.
 
 h3. doFirst & doLast
 
-@doFirst@/@doLast@ is for single-time setup. (need example, I don't use this)
+@doFirst@ / @doLast@는 일회성 설정을 위한 장치이다. (예제가 필요하다. 나(즉, 원저자)는 이를 사용하지 않는다.)
 
 <pre>
 "Foo" should {
@@ -119,13 +119,13 @@ h3. doFirst & doLast
 }
 </pre>
 
-h2(#matchers). Matchers
+h2(#matchers). Matcher(매처)
 
-You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+데이터가 있고, 그 데이터가 올바른지 확인할 때 매처를 사용한다. 가장 흔히 사용되는 것들을 살펴보자. ("매처 가이드":http://code.google.com/p/specs/wiki/MatchersGuide 를 살펴 보라)
 
 h3. mustEqual
 
-We've seen several examples of mustEqual already.
+이미 mustEqual 예제는 여러 개 살펴 보았다.
 
 <pre>
 1 mustEqual 1
@@ -133,9 +133,9 @@ We've seen several examples of mustEqual already.
 "a" mustEqual "a"
 </pre>
 
-Reference equality, value equality.
+동일성에는 참조 동일성과 값 동일성이 있다.
 
-h3. elements in a Sequence
+h3. 열의 원소
 
 <pre>
 val numbers = List(1, 2, 3)
@@ -150,7 +150,7 @@ List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4),
 </pre>
 
 
-h3. Items in a Map
+h3. 맵의 원소
 
 <pre>
 map must haveKey(k)
@@ -160,7 +160,7 @@ map must haveValue(v)
 map must notHaveValue(v)
 </pre>
 
-h3. Numbers
+h3. 수
 
 <pre>
 a must beGreaterThan(b)
@@ -173,7 +173,7 @@ a must beCloseTo(b, delta)
 </pre>
 
 
-h3. Options
+h3. 옵션(Option)
 
 <pre>
 a must beNone
@@ -191,15 +191,15 @@ h3. throwA
 a must throwA[WhateverException]
 </pre>
 
-This is shorter than a try catch with a fail in the body.
+이렇게 쓰는게 테스트 몸체에서 예외를 캐치해서 실패로 만드는 것 보다 더 짧다.
 
-You can also expect a specific message
+또한 특정 예외 메시지를 명시할 수도 있다.
 
 <pre>
 a must throwA(WhateverException("message"))
 </pre>
 
-You can also match on the exception:
+예외의 타입에 대해 매치할 수도 있다.
 
 <pre>
 a must throwA(new Exception) like {
@@ -208,13 +208,13 @@ a must throwA(new Exception) like {
 </pre>
 
 
-h3. Write your own Matchers
+h3. 필요한 매처 만들어내기
 
 <pre>
 import org.specs.matcher.Matcher
 </pre>
 
-h4. As a val
+h4. val로 정의하기
 
 <pre>
 "A matcher" should {
@@ -229,9 +229,9 @@ h4. As a val
 }
 </pre>
 
-The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn't true.
+매처 정의시 지켜야할 계약은 3-튜플을 반환하는 것이다. 첫 원소에는 예상 결과를 만족하는지 여부, 두번째 원소에는 만족시의 메시지, 마지막 원소에는 실패시의 메시지가 들어가야 한다.
 
-h4. As a case class
+h4. 케이스 클래스로 정의하기
 
 <pre>
 case class beEven(b: Int) extends Matcher[Int]() {
@@ -239,9 +239,9 @@ case class beEven(b: Int) extends Matcher[Int]() {
 }
 </pre>
 
-Using a case class makes it more shareable.
+케이스 클래스로 만들면 더 공유하기 쉬워진다.
 
-h2(#mocks). Mocks
+h2(#mocks). 목업
 
 <pre>
 import org.specs.Specification
@@ -264,11 +264,11 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*See Also* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*See Also* "Mockito 활용하기":http://code.google.com/p/specs/wiki/UsingMockito
 
-h2(#spies). Spies
+h2(#spies). 스파이
 
-Spies can also be used in order to do some "partial mocking" of real objects:
+스파이를 사용해 실제 객체를 "부분적으로 흉내내기"할 수 있다.
 
 <pre>
 val list = new LinkedList[String]
@@ -285,32 +285,32 @@ spiedList.add("two")
 there was one(spiedList).add("one")
 </pre>
 
-However, working with spies can be tricky:
+하지만, 스파이를 쓰면 때로 문제가 생길 수 있다.
 
 <pre>
-// if the list is empty, this will throws an IndexOutOfBoundsException
+// 리스트가 비어있다면, IndexOutOfBoundsException가 발생할 것이다.
 spiedList.get(0) returns "one"
 </pre>
 
-@doReturn@ must be used in that case:
+이 경우 @doReturn@ 을 사용해야만 한다.
 
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
 
 
-h2(#sbt). Run individual specs in sbt
+h2(#sbt). 개별 specs를 sbt에서 실행하기
 
 
 <pre>
 > test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run just that spec.
+라고 하면 해당 spec을 실행할 것이다.
 
 
 <pre>
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run that test in a loop, with each file modification triggering a test run.
+라고 하면 테스트를 실행하되, 파일이 바뀔 때마다 테스트가 재실행될 것이다.

@@ -168,7 +168,7 @@ pool-1-thread-2
 
 h2(#Future). Futures
 
-A @Future@ represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking @get()@ method on it.  An @Executor@ returns a @Future@. If you use the Finagle RPC system, you use @Future@ instances to hold results that might not have arrived yet.
+A @Future@ represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking @Await.result()@ method on it.  An @Executor@ returns a @Future@. If you use the Finagle RPC system, you use @Future@ instances to hold results that might not have arrived yet.
 
 A @FutureTask@ is a Runnable and is designed to be run by an @Executor@
 
@@ -183,7 +183,7 @@ executor.execute(future)
 Now I need the results so let's block until its done.
 
 <pre>
-val blockingResult = future.get()
+val blockingResult = Await.result(future)
 </pre>
 
 *See Also* <a href="finagle.html">Scala School's Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
@@ -208,7 +208,7 @@ h3. Three tools
 
 h4. synchronization
 
-Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the JVM is by synchronizing on something.  In this case, we'll synchronize on our userMap.
+Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the JVM is by synchronizing on something.  In this case, we'll synchronize on our Person.
 
 In the JVM, you can synchronize on any instance that's not null.
 
@@ -331,7 +331,7 @@ h2(#solutions). Let's make it safe
 
 In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first @Person@ example.
 
-Since userMap isn't thread-safe, how we do we keep only a single thread at a time mutating it?
+Since userMap isn't thread-safe, how do we keep only a single thread at a time mutating it?
 
 You might consider locking on userMap while adding.
 
@@ -379,18 +379,18 @@ If you look at the implementation, you realize that it's simply synchronizing on
 
 h2.  Java ConcurrentHashMap
 
-Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConversions to give us nice Scala semantics.
+Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConverters to give us nice Scala semantics.
 
 In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.
 
 <pre>
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
     extends InvertedIndex(userMap) {
 
-  def this() = this(new ConcurrentHashMap[String, User])
+  def this() = this(new ConcurrentHashMap[String, User] asScala)
 }
 </pre>
 
@@ -449,7 +449,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
 
 val queue = new LinkedBlockingQueue[String]()
 
-// One thread for the consumer
+// One thread for the producer
 val producer = new Producer[String]("users.txt", q)
 new Thread(producer).start()
 

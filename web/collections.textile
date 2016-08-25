@@ -8,10 +8,12 @@ layout: post
 This lesson covers:
 
 * Basic Data Structures
+** "Arrays":#Arrays
 ** "Lists":#Lists
 ** "Sets":#Sets
 ** "Tuple":#Tuple
 ** "Maps":#Maps
+** "Option":#Option
 * Functional Combinators
 ** "map":#map
 ** "foreach":#foreach
@@ -32,20 +34,37 @@ Scala provides some nice collections.
 
 *See Also* Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.
 
-h2(#Lists). Lists
+h2(#Arrays). Arrays
+
+Arrays preserve order, can contain duplicates, and are mutable.
 
 <pre>
-scala> val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala> val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+</pre>
+
+h2(#Lists). Lists
+
+Lists preserve order, can contain duplicates, and are immutable.
+
+<pre>
+scala> val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+<console>:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
 </pre>
 
 h2(#Sets). Sets
 
-Sets have no duplicates
+Sets do not preserve order and have no duplicates
 
 <pre>
-scala> Set(1, 1, 2)
-res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+scala> val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 </pre>
 
 h2(#Tuple). Tuple
@@ -114,13 +133,13 @@ h2(#Option). Option
 
 The basic interface for Option looks like:
 
-<code>
+<pre>
 trait Option[T] {
   def isDefined: Boolean
   def get: T
   def getOrElse(t: T): T
 }
-</code>
+</pre>
 
 Option itself is generic and has two subclasses: <code>Some[T]</code> or <code>None</code>
 
@@ -129,69 +148,72 @@ Let's look at an example of how Option is used:
 <code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you're asking for.
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
 Now our data appears trapped in this <code>Option</code>. How do we work with it?
 
 A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
 
-<code>
+<pre>
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined) {
   res1.get * 2
 } else {
   0
 }
-</code>
+</pre>
 
 We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
 
 <code>getOrElse</code> lets you easily define a default value.
 
-<code>
+<pre>
 val result = res1.getOrElse(0) * 2
-</code>
+</pre>
 
 Pattern matching fits naturally with <code>Option</code>.
 
-<code>
+<pre>
 val result = res1 match {
   case Some(n) => n * 2
   case None => 0
 }
-</code>
+</pre>
 
 *See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
 h1(#combinators). Functional Combinators
 
-<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better defintion, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
+<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better definition, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
 
 h2(#map). map
 
 Evaluates a function over each element in the list, returning a list with the same number of elements.
 
 <pre>
+scala> val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-or pass in a partially evaluated function
+or pass in a function (the Scala compiler automatically converts our method to a function)
 
 <pre>
 
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
-scala> numbers.map(timesTwo _)
+scala> numbers.map(timesTwo)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
@@ -225,7 +247,7 @@ res0: List[Int] = List(2, 4)
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala> numbers.filter(isEven _)
+scala> numbers.filter(isEven)
 res2: List[Int] = List(2, 4)
 </pre>
 
@@ -243,7 +265,8 @@ h2(#partition). partition
 <code>partition</code> splits a list based on where it falls with respect to a predicate function.
 
 <pre>
-scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition(_ %2 == 0)
+scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala> numbers.partition(_ % 2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 </pre>
 
@@ -380,7 +403,7 @@ scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
-now filter out every entry who's phone extension is lower than 200.
+Now filter out every entry whose phone extension is lower than 200.
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)

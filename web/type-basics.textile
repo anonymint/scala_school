@@ -64,7 +64,7 @@ scala> res5.head
 res6: Any = 2
 </pre>
 
-And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack typesafety (because these are all dynamic).
+And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack type safety (because these are all dynamic).
 
 Polymorphism is achieved through specifying _type variables_.
 
@@ -205,7 +205,7 @@ Suppose you need a function that takes a <code>Bird</code> param:
 scala> val getTweet: (Bird => String) = // TODO
 </pre>
 
-The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say "I need a ___, I have a subclass of ___", you're OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes an <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:
+The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say "I need a ___, I have a subclass of ___", you're OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes a <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:
 
 <pre>
 scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
@@ -253,7 +253,7 @@ scala> new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-Note that the return type is <code>Animal</code>.
+Note that the return type is <code>List[Animal]</code>.
 
 h2(#quantification). Quantification
 
